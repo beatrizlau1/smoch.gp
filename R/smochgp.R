@@ -1,41 +1,3 @@
-# Hello, world!
-#
-# This is an example function named 'hello'
-# which prints 'Hello, world!'.
-#
-# You can learn more about package authoring with RStudio at:
-#
-#   https://r-pkgs.org
-#
-# Some useful keyboard shortcuts for package authoring:
-#
-#   Install Package:           'Cmd + Shift + B'
-#   Check Package:             'Cmd + Shift + E'
-#   Test Package:              'Cmd + Shift + T'
-
-
-
-
-#' @param y Uma string com o nome da variável dependente.
-#' @param x Vetor de strings com os nomes das variáveis independentes.
-#' @param data Dataframe com os dados de treino.
-#' @param k Número de vizinhos a considerar. (Default: 5)
-#' @param oversampling Percentagem de oversampling a ser aplicada. (Default: 100)
-#' @param outlier Booleano, indica se outliers devem ser tratados. (Default: FALSE)
-#' @param out_amp Amplitude para captar os outliers. (Default: 1.5)
-#' @return
-#' @return Uma lista contendo:
-#' \item{distances}{Matriz de distâncias entre as observações.}
-#' \item{nearest_neighbors}{Lista com os vizinhos mais próximos para cada observação.}
-#' \item{Newdata}{O novo conjunto de dados com as observações geradas pelo oversampling.}
-#'
-#' @examples
-#' df <- data.frame(y=rep(as.factor(c('Yes', 'No')), times=c(90, 10)), x1=rnorm(100), x2=rnorm(100))
-#' smoch.gp(y = "y", x = c("x1", "x2"), data = df, k = 5, oversampling = 100, outlier = FALSE)
-#'
-#' @export
-#'
-#'
 smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5){
 
   #descobrir classe minoritária
@@ -352,7 +314,3 @@ smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5)
 
   return(list(distances = dis_matrix, nearest_neighbors = nearest_neighbors, Newdata = data))
 }
-
-
-
-
