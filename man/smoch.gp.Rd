@@ -7,9 +7,9 @@
 smoch.gp(y, x, data, k = 5, oversampling = 100, outlier = FALSE, out_amp = 1.5)
 }
 \arguments{
-\item{y}{A categorical variable with the unbalanced data.}
+\item{y}{A categorical variable with the unbalanced probelem.}
 
-\item{x}{The variables we want to include in the prediction problem.}
+\item{x}{The variables to include in the prediction problem.}
 
 \item{data}{A data frame containing the original (unbalanced) data set.}
 

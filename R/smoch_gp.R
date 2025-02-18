@@ -1,7 +1,7 @@
 #' Synthetic Minority Ovsersampling Convex Hull - Gower's distance with Podani modification
 #'
-#' @param y A categorical variable with the unbalanced data.
-#' @param x The variables we want to include in the prediction problem.
+#' @param y A categorical variable with the unbalanced probelem.
+#' @param x The variables to include in the prediction problem.
 #' @param data A data frame containing the original (unbalanced) data set.
 #' @param k A number indicating the number of nearest neighbours that are used to generate the new examples of the minority class.
 #' @param oversampling A number that drives the decision of how many extra cases from the minority class are generated.
@@ -20,6 +20,7 @@
 #' @examples
 #' df <- data.frame(y=rep(as.factor(c('Yes', 'No')), times=c(90, 10)), x1=rnorm(100), x2=rnorm(100))
 #' smoch.gp(y='y', x=c('x1','x2'), data=df, k=5, oversampling = 100, outlier = F)
+
 smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5){
 
   #descobrir classe minoritária
