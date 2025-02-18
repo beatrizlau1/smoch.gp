@@ -1,0 +1,12 @@
+Package: smoch.gp
+Type: Package
+Title: tools::toTitleCase(Synthetic Minority Oversampling Convex Hull - Gower's Distance with Podani Modification)
+Version: 0.1.0
+Author: c(Beatriz Lau, Luís M. Silva, Hugo Alonso)
+Maintainer: Beatriz Lau <beatrizlau@ua.pt>
+Description: "Pacote para teste e desenvolvimento."
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 4.0), FD, dplyr
+RoxygenNote: 7.3.2
