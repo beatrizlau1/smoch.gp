@@ -1,41 +1,4 @@
-# Hello, world!
-#
-# This is an example function named 'hello'
-# which prints 'Hello, world!'.
-#
-# You can learn more about package authoring with RStudio at:
-#
-#   https://r-pkgs.org
-#
-# Some useful keyboard shortcuts for package authoring:
-#
-#   Install Package:           'Cmd + Shift + B'
-#   Check Package:             'Cmd + Shift + E'
-#   Test Package:              'Cmd + Shift + T'
 
-
-
-
-#' @param y Uma string com o nome da variável dependente.
-#' @param x Vetor de strings com os nomes das variáveis independentes.
-#' @param data Dataframe com os dados de treino.
-#' @param k Número de vizinhos a considerar. (Default: 5)
-#' @param oversampling Percentagem de oversampling a ser aplicada. (Default: 100)
-#' @param outlier Booleano, indica se outliers devem ser tratados. (Default: FALSE)
-#' @param out_amp Amplitude para captar os outliers. (Default: 1.5)
-#' @return
-#' @return Uma lista contendo:
-#' \item{distances}{Matriz de distâncias entre as observações.}
-#' \item{nearest_neighbors}{Lista com os vizinhos mais próximos para cada observação.}
-#' \item{Newdata}{O novo conjunto de dados com as observações geradas pelo oversampling.}
-#'
-#' @examples
-#' df <- data.frame(y=rep(as.factor(c('Yes', 'No')), times=c(90, 10)), x1=rnorm(100), x2=rnorm(100))
-#' smoch.gp(y = "y", x = c("x1", "x2"), data = df, k = 5, oversampling = 100, outlier = FALSE)
-#'
-#' @export
-#'
-#'
 smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5){
 
   #descobrir classe minoritária
@@ -57,7 +20,7 @@ smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5)
     # Se não for preciso ver os outliers
     if(outlier==FALSE){
 
-      dis <- gowdis(datax, ord = c('podani'))
+      dis <- FD::gowdis(datax, ord = c('podani'))
 
       dis_matrix <- as.matrix(dis)
 
@@ -78,7 +41,7 @@ smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5)
     } else { # quando os OUTLIERS interessam
 
       var_n_num <- datax[,sapply(datax, function(x){!is.numeric(x) | is.binary(x)})]
-      dis_discrete <- gowdis(as.data.frame(var_n_num, rownames(datax))) #distância das variáveis Não numéricas
+      dis_discrete <- FD::gowdis(as.data.frame(var_n_num, rownames(datax))) #distância das variáveis Não numéricas
       # rownames(datax) para obrigar a manter os index originais
 
       var_num <- datax[,sapply(datax, function(x) {is.numeric(x) & !is.binary(x)})]
@@ -205,7 +168,7 @@ smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5)
     if(outlier==FALSE){
 
 
-      dis <- gowdis(data[data[[y]]==min,], ord = c('podani'))
+      dis <- FD::gowdis(data[data[[y]]==min,], ord = c('podani'))
 
       dis_matrix <- as.matrix(dis)
 
@@ -229,7 +192,7 @@ smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5)
 
 
       var_n_num <- data[data[[y]]==min,sapply(data, function(x){!is.numeric(x) | is.binary(x)})]
-      dis_discrete <- gowdis(as.data.frame(var_n_num, rownames(data[data[[y]]==min,]))) #distância das variáveis Não numéricas
+      dis_discrete <- FD::gowdis(as.data.frame(var_n_num, rownames(data[data[[y]]==min,]))) #distância das variáveis Não numéricas
 
       var_num <- data[data[[y]]==min,sapply(data, function(x) {is.numeric(x) & !is.binary(x)})]
 
@@ -352,7 +315,3 @@ smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5)
 
   return(list(distances = dis_matrix, nearest_neighbors = nearest_neighbors, Newdata = data))
 }
-
-
-
-
