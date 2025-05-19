@@ -2,7 +2,7 @@ Package: smoch.gp
 Type: Package
 Title: Synthetic Minority Oversampling Convex Hull - Gower's Distance with Podani Modification
 Version: 0.1.0
-Authors@R: Authors@R: c(
+Authors@R: c(
   person(given = "Beatriz", family = "Lau", email = "beatrizlau@ua.pt", role = c("aut", "cre")),
   person(given = "Hugo", family = "Alonso", email = "hugo.alonso@ua.pt", role = "aut"),
   person(given = "Joaquim", family = "Fernando Pinto da Costa", email = "jpcosta@fc.up.pt", role = "aut")
