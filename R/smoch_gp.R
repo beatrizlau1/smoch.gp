@@ -13,12 +13,16 @@
 #'
 #' @return The function returns a list with three objects:
 #'
-#' \bold{Newdata} - A resulting dataset consists of original minority observations, synthetic minority observations and original majority observations. A vector of their respective target classes is included in the final column.
+#' \item{Newdata} - A resulting dataset consists of original minority observations, synthetic minority observations and original majority observations. A vector of their respective target classes is included in the final column.
 #' @export
+#'
+#' @references  Alonso, H., & da Costa, J. F. P. (2025). Over-sampling methods for mixed data in imbalanced problems. \emph{Communications in Statistics: Simulation and Computation}. \url{https://doi.org/10.1080/03610918.2024.2447451}
+#'
+
 #'
 #' @examples
 #' df <- data.frame(y=rep(as.factor(c('Yes', 'No')), times=c(90, 10)), x1=rnorm(100), x2=rnorm(100))
-#' smoch.gp(y='y', x=c('x1','x2'), data=df, k=5, oversampling = 100, outlier = F)
+#' smoch.gp(y='y', data=df, k=5, oversampling = 100, outlier = F)
 
 smoch.gp <- function(y,data,k=5, oversampling, outlier=FALSE, out_amp=1.5){
 
@@ -465,3 +469,4 @@ smoch.gp <- function(y,data,k=5, oversampling, outlier=FALSE, out_amp=1.5){
 
   return(list(Newdata = data))
 }
+
