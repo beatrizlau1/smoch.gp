@@ -54,7 +54,7 @@ smoch.gp <- function(y,data,k=5, oversampling, outlier=FALSE, out_amp=1.5){
   }
 
 
-  if(!is.integer(k)|| k<=0){
+  if(!is.numeric(k) || k<=0){
     stop("K-nearest neighbours must be a positive integer.")
   }
 
