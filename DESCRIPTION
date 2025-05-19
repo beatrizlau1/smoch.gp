@@ -2,14 +2,17 @@ Package: smoch.gp
 Type: Package
 Title: Synthetic Minority Oversampling Convex Hull - Gower's Distance with Podani Modification
 Version: 0.1.0
-Author: Beatriz Lau
+Authors@R: person(c("Beatriz Lau", "Hugo Alonso", "Joaquim Fernando Pinto da Costa"), e-mail = "beatrizlauua.pt")
 Maintainer: Beatriz Lau <beatrizlau@ua.pt>
-Description: Create new observations for minority classes
+Description: This function generates synthetic observations for the minority class in a given dataset exhibiting class imbalance. It was specifically designed for mixed-type datasets—i.e., those containing heterogeneous variable types—although it is also compatible with more uniform datasets, such as those composed solely of numerical or categorical variables, for example.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Depends: R (>= 4.0), FD, dplyr
+Depends: R (>= 4.0)
+Imports:  FD, dplyr, Information
 RoxygenNote: 7.3.2
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+URL: https://github.com/beatrizlau1/smoch.gp
+BugReports: https://github.com/beatrizlau1/smoch.gp/issues

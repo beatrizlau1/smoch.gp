@@ -1,29 +1,72 @@
 #' Synthetic Minority Ovsersampling Convex Hull - Gower's distance with Podani modification
 #'
-#' @param y A categorical variable with the unbalanced probelem.
-#' @param x The variables to include in the prediction problem.
-#' @param data A data frame containing the original (unbalanced) data set.
-#' @param k A number indicating the number of nearest neighbours that are used to generate the new examples of the minority class.
-#' @param oversampling A number that drives the decision of how many extra cases from the minority class are generated.
-#' @param outlier Optionally, this parameter allows the method to be adapted for the presence of outliers.
-#' @param out_amp A parameter to adjust the stringency of outlier detection.
+#' @description
+#' This function generates synthetic observations for the minority class in a given dataset exhibiting class imbalance. It was specifically designed for mixed-type datasets—i.e., those containing heterogeneous variable types—although it is also compatible with more uniform datasets, such as those composed solely of numerical or categorical variables, for example.
+#'
+#'
+#' @param y The name or column index of the dependent variable, which contains the imbalanced classes(require);
+#' @param data  A dataset presenting class imbalance (require);
+#' @param k  The number of k-nearest neighbours to consider, the default value is 5;
+#' @param oversampling The oversampling ratio to apply. Accepted values must be greater than 0 and multiples of 10. If unspecified, the defaults is the maximum possible ratio for the given dataset;
+#' @param outlier A boolean argument indicating whether the SMOCH-GP function should be adapted to account for potential outliers. The default value is FALSE;
+#' @param out_amp  allows the user to customise the threshold from which an observation is considered an outlier. This parameter is only active when outlier = TRUE, otherwise, it is ignored. By default, an observation is considered an outlier if it lies below or above the first or third quartile by more than 1.5*Interquartile Range.
 #'
 #' @return The function returns a list with three objects:
 #'
-#' \bold{Distances} - The matrix of distances calculated between observations.
-#'
-#' \bold{Nearest neighbors} - The nearest neighbors identified.
-#'
-#' \bold{Newdata} - The newly generated balanced dataset.
+#' \bold{Newdata} - A resulting dataset consists of original minority observations, synthetic minority observations and original majority observations. A vector of their respective target classes is included in the final column.
 #' @export
 #'
 #' @examples
 #' df <- data.frame(y=rep(as.factor(c('Yes', 'No')), times=c(90, 10)), x1=rnorm(100), x2=rnorm(100))
 #' smoch.gp(y='y', x=c('x1','x2'), data=df, k=5, oversampling = 100, outlier = F)
 
-smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5){
+smoch.gp <- function(y,data,k=5, oversampling, outlier=FALSE, out_amp=1.5){
+
+  ## Fazer verificações
+  if(missing(data) || !is.data.frame(data)) {
+    stop("You must provide a valid dataset as a data frame.")
+  }
+
+  if(is.null(y)) {
+    stop("The dependent variable must be defined.")
+  }
+
+  # para que o over-sampling seja o máximo
+  if(is.null(oversampling)) {
+    table = table(data$y)
+    n.min = min(table)
+    n.max = max(table)
+    p = ((n.max/n.min)-1)*100
+    p = floor(p/100)*100
+    oversampling = p
+  } else {
+    if(!is.numeric(oversampling) || oversampling <=0 || oversampling %% 10 != 0) {
+      stop("The over-sampling ratio value must be a positive number as a multiple of 10. ")
+    }
+  }
+
+  if(!is.logical(outlier)) {
+    stop("Outlier argument must be TRUE or FALSE.")
+  }
+
+
+  if(!is.integer(k)|| k<=0){
+    stop("K-nearest neighbours must be a positive integer.")
+  }
 
   #descobrir classe minoritária
+
+  data <- as.data.frame(data)
+  chart <- sapply(data, function(x){is.character(x)})
+  data[] <- lapply(seq_along(data), function(i){
+    if (chart[[i]]){
+      data[[i]] <- as.factor(data[[i]])
+    } else{
+      data[[i]]
+    }
+  })
+
+  row.names(data) = 1:nrow(data)
 
   min = names(which.min(table(data[[y]])))
 
@@ -34,17 +77,39 @@ smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5)
 
     n_over = oversampling/100*nrow(data[data[[y]]==min,])
 
-    datax = original_indices <- which(data[[y]] == min)
+    original_indices <- which(data[[y]] == min)
     sampled_indices <- sample(original_indices, n_over)
-    datax <- data[sampled_indices, , drop = FALSE]
+    datax <- data[sampled_indices, , drop = FALSE] #base para construir
+
+    row.names(datax) <- 1:nrow(datax)
+    datax2 <- datax
+    int <- sapply(datax2, function(x){is.integer(x)})
+    datax2[] <- lapply(seq_along(datax2), function(i) {
+      if (int[i]) {
+        as.numeric(datax2[[i]])  # Converter colunas inteiras para numéricas
+      } else {
+        datax2[[i]]  # Manter as outras colunas inalteradas
+      }
+    })
+
+    factor <- sapply(datax2, function(x){is.factor(x) & length(levels(x))})
+    datax2[] <- lapply(seq_along(datax2), function(i){
+      if(factor[i]){
+        c(0,1)[datax2[[i]]]
+      }else{
+        datax2[[i]]
+      }
+    })
 
 
     # Se não for preciso ver os outliers
     if(outlier==FALSE){
 
-      dis <- FD::gowdis(datax, ord = c('podani'))
+      dis <- FD::gowdis(datax2, ord = c('podani'))
 
       dis_matrix <- as.matrix(dis)
+      colnames(dis_matrix) = which(datax[[y]]==min)
+      rownames(dis_matrix) = which(datax[[y]]==min)
 
       nearest_neighbors <- list()
 
@@ -54,7 +119,7 @@ smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5)
         valid_distances[i] <- Inf
 
         # Obter os índices dos k menores valores
-        nearest <- order(valid_distances)[1:3]
+        nearest <- order(valid_distances)[1:k]
 
         # Armazenar os nomes dos vizinhos mais próximos (colunas)
         nearest_neighbors[[rownames(dis_matrix)[i]]] <- colnames(dis_matrix)[nearest]
@@ -62,13 +127,13 @@ smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5)
 
     } else { # quando os OUTLIERS interessam
 
-      var_n_num <- datax[,sapply(datax, function(x){!is.numeric(x) | is.binary(x)})]
-      dis_discrete <- FD::gowdis(as.data.frame(var_n_num, rownames(datax))) #distância das variáveis Não numéricas
+      var_n_num <- datax[,sapply(datax, function(x){!is.numeric(x) | Information::is.binary(x)})]
+      dis_matrix <- FD::gowdis(as.data.frame(var_n_num, rownames(datax))) #distância das variáveis Não numéricas
       # rownames(datax) para obrigar a manter os index originais
 
-      var_num <- datax[,sapply(datax, function(x) {is.numeric(x) & !is.binary(x)})]
+      var_num <- datax[,sapply(datax, function(x) {is.numeric(x) & !Information::is.binary(x)})]
 
-      # fazer o cálculo da distância
+      # fazer o cálculo da distância APENAS SE houver variáveis numéricas
 
 
       dis_num = lapply(var_num, function(x){
@@ -120,9 +185,10 @@ smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5)
 
       dis2_fim <- dis2/ncol(data)
 
+
       # Distância final
 
-      dis_matrix <- as.matrix(dis_discrete)*(length(var_n_num))/ncol(data) + dis2_fim
+      dis_matrix <- as.matrix(dis_matrix)*(length(var_n_num))/ncol(data) + dis2_fim
 
       # Procurar k vizinhos mais próximos
 
@@ -147,29 +213,38 @@ smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5)
       new_data <- list()
 
       for(i in seq_along(nearest_neighbors)){
-        vizinhos <- data[nearest_neighbors[[i]], ] # Obtém os vizinhos mais próximos
-        vizinhos_n <- rbind(vizinhos, data[names(nearest_neighbors[[i]]),])
+        vizinhos <- datax[nearest_neighbors[[i]], ] # Obtém os vizinhos mais próximos
+        vizinhos_n <- rbind(vizinhos, datax[names(nearest_neighbors[[i]]),])
         # Seleciona colunas numéricas
-        vizinhos_numeric <- vizinhos_n[, sapply(vizinhos_n, is.numeric), drop = FALSE]
+        vizinhos_numeric <- vizinhos_n[, sapply(vizinhos_n, function(x) {is.numeric(x) & !is.integer(x)}), drop = FALSE]
 
         # Seleciona colunas discretas (não numéricas)
-        vizinhos_discrete <- vizinhos[, sapply(vizinhos, Negate(is.numeric)), drop = FALSE]
+        vizinhos_discrete <- vizinhos[, sapply(vizinhos, function(x){ is.factor(x) | is.character(x) | is.logical(x) | is.integer(x)}), drop = FALSE]
 
-        # Se não houver colunas numéricas, passa para a próxima iteração
-        if (ncol(vizinhos_numeric) == 0) next
+        # Se não houver colunas numéricas,
+        if (ncol(vizinhos_numeric) > 0) {
 
-        # Gera coeficientes aleatórios normalizados para combinação convexa
-        alpha.linha <- runif(nrow(vizinhos_numeric), 0, 1)
-        alpha <- alpha.linha / sum(alpha.linha)
+          # Gera coeficientes aleatórios normalizados para combinação convexa
+          alpha.linha <- runif(nrow(vizinhos_numeric), 0, 1)
+          alpha <- alpha.linha / sum(alpha.linha)
 
-        # Cria nova observação numérica
-        new_numeric <- colSums(sweep(vizinhos_numeric, 1, alpha, "*"))
+          # Cria nova observação numérica
+          new_numeric <- colSums(sweep(vizinhos_numeric, 1, alpha, "*"))
 
-        # Seleciona uma linha aleatória das variáveis discretas
-        new_discrete <- apply(vizinhos_discrete, 2, function(x) sample(x,1))
+          # Seleciona uma linha aleatória das variáveis discretas
+          new_discrete <- apply(vizinhos_discrete, 2, function(x) sample(x,1))
 
-        # Combina numéricos e discretos numa única linha
-        new_obs <- cbind(as.data.frame(t(new_numeric)), t(new_discrete))
+          # Combina numéricos e discretos numa única linha
+          new_obs <- cbind(as.data.frame(t(new_numeric)), t(new_discrete))
+
+        }else {
+
+          # Seleciona uma linha aleatória das variáveis discretas
+          new_discrete <- apply(vizinhos_discrete, 2, function(x) sample(x,1))
+
+          # Combina numéricos e discretos numa única linha
+          new_obs <- cbind(as.data.frame(t(new_discrete)))
+        }
 
         # Adiciona à lista de novas observações
         new_data[[i]] <- new_obs
@@ -181,6 +256,16 @@ smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5)
       # Junta à base de dados original
       data <- rbind(data, new_data_df)
 
+      #trasformar o que era interiro em inteiro novamente
+      char <- sapply(data, function(x) {is.character(x)})
+      data[] <- lapply(seq_along(data), function(i){
+        if(char[i]==TRUE){
+          as.integer(data[[i]])
+        }else{
+          data[[i]]
+        }
+      })
+
     } # fim do ciclo for
 
   } else {  # Quando o oversampling é maior do que 100
@@ -189,10 +274,33 @@ smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5)
 
     if(outlier==FALSE){
 
+      data2 <- data[data[[y]]==min,]
 
-      dis <- FD::gowdis(data[data[[y]]==min,], ord = c('podani'))
+      int <- sapply(data2, function(x){is.integer(x)})
+
+      data2[] <- lapply(seq_along(data2), function(i) {
+        if (int[i]) {
+          as.numeric(data2[[i]])
+        } else {
+          data2[[i]]
+        }
+      })
+
+      factor <- sapply(data2, function(x){is.factor(x) & length(levels(x))})
+      data2[] <- lapply(seq_along(data2), function(i){
+        if(factor[i]){
+          c(0,1)[data2[[i]]]
+        }else{
+          data2[[i]]
+        }
+      })
+
+      dis <- FD::gowdis(data2, ord = c('podani'))
 
       dis_matrix <- as.matrix(dis)
+
+      colnames(dis_matrix) = which(data[[y]]==min)
+      rownames(dis_matrix) = which(data[[y]]==min)
 
       nearest_neighbors <- list()
 
@@ -213,10 +321,10 @@ smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5)
       #seleção das variáveis numéricas
 
 
-      var_n_num <- data[data[[y]]==min,sapply(data, function(x){!is.numeric(x) | is.binary(x)})]
+      var_n_num <- data[data[[y]]==min,sapply(data, function(x){!is.numeric(x) | Information::is.binary(x)})]
       dis_discrete <- FD::gowdis(as.data.frame(var_n_num, rownames(data[data[[y]]==min,]))) #distância das variáveis Não numéricas
 
-      var_num <- data[data[[y]]==min,sapply(data, function(x) {is.numeric(x) & !is.binary(x)})]
+      var_num <- data[data[[y]]==min,sapply(data, function(x) {is.numeric(x) & !Information::is.binary(x)})]
 
       # fazer o cálculo da distância
 
@@ -268,6 +376,7 @@ smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5)
       #Depois da soma total devemos dividir por m (número total de variáveis )
 
       dis2_fim <- dis2/ncol(data)
+
 
       # Distância final
 
@@ -301,39 +410,58 @@ smoch.gp <- function(y,x,data,k=5, oversampling=100, outlier=FALSE, out_amp=1.5)
         vizinhos <- data[nearest_neighbors[[i]], ]  # Obtém os vizinhos mais próximos
         vizinhos_n <- rbind(vizinhos, data[names(nearest_neighbors[[i]]),])
         # Seleciona colunas numéricas
-        vizinhos_numeric <- vizinhos_n[, sapply(vizinhos_n, is.numeric), drop = FALSE]
+        vizinhos_numeric <- vizinhos_n[, sapply(vizinhos_n, function(x) {is.numeric(x) & !is.integer(x)}), drop = FALSE]
 
         # Seleciona colunas discretas (não numéricas)
-        vizinhos_discrete <- vizinhos[, sapply(vizinhos, Negate(is.numeric)), drop = FALSE]
+        vizinhos_discrete <- vizinhos[, sapply(vizinhos, function(x){is.factor(x) | is.character(x) | is.logical(x) | is.integer(x)}), drop = FALSE]
 
-        # Se não houver colunas numéricas, passa para a próxima iteração
-        if (ncol(vizinhos_numeric) == 0) next
+        # Se não houver colunas numéricas,
+        if (ncol(vizinhos_numeric) > 0) {
 
-        # Gera coeficientes aleatórios normalizados para combinação convexa
-        alpha.linha <- runif(nrow(vizinhos_numeric), 0, 1)
-        alpha <- alpha.linha / sum(alpha.linha)
+          # Gera coeficientes aleatórios normalizados para combinação convexa
+          alpha.linha <- runif(nrow(vizinhos_numeric), 0, 1)
+          alpha <- alpha.linha / sum(alpha.linha)
 
-        # Cria nova observação numérica
-        new_numeric <- colSums(sweep(vizinhos_numeric, 1, alpha, "*"))
+          # Cria nova observação numérica
+          new_numeric <- colSums(sweep(vizinhos_numeric, 1, alpha, "*"))
 
-        # Seleciona uma linha aleatória das variáveis discretas
-        new_discrete <- apply(vizinhos_discrete, 2, function(x) sample(x,1))
+          # Seleciona uma linha aleatória das variáveis discretas
+          new_discrete <- apply(vizinhos_discrete, 2, function(x) sample(x,1))
 
-        # Combina numéricos e discretos numa única linha
-        new_obs <- cbind(as.data.frame(t(new_numeric)), t(new_discrete))
+          # Combina numéricos e discretos numa única linha
+          new_obs <- cbind(as.data.frame(t(new_numeric)), t(new_discrete))
+
+        }else {
+
+          # Seleciona uma linha aleatória das variáveis discretas
+          new_discrete <- apply(vizinhos_discrete, 2, function(x) sample(x,1))
+
+          # Combina numéricos e discretos numa única linha
+          new_obs <- cbind(as.data.frame(t(new_discrete)))
+        }
 
         # Adiciona à lista de novas observações
         new_data[[i]] <- new_obs
-      }
 
+      }
       # Converte lista em data.frame
       new_data_df <- do.call(rbind, new_data)
 
       # Junta à base de dados original
       data <- rbind(data, new_data_df)
-    }
 
+      ##trasformar o que era interiro em inteiro novamente
+      char <- sapply(data, function(x) {is.character(x)})
+      data[] <- lapply(seq_along(data), function(i){
+        if(char[i]==TRUE){
+          as.integer(data[[i]])
+        }else{
+          data[[i]]
+        }
+      })
+
+    }
   }
 
-  return(list(distances = dis_matrix, nearest_neighbors = nearest_neighbors, Newdata = data))
+  return(list(Newdata = data))
 }
