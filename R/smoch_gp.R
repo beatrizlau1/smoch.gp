@@ -4,16 +4,15 @@
 #' This function generates synthetic observations for the minority class in a given dataset exhibiting class imbalance. It was specifically designed for mixed-type datasets—i.e., those containing heterogeneous variable types—although it is also compatible with more uniform datasets, such as those composed solely of numerical or categorical variables, for example.
 #'
 #'
-#' @param y The name or column index of the dependent variable, which contains the imbalanced classes(require);
+#' @param y The name or column index of the dependent variable, which contains the imbalanced classes (require);
 #' @param data  A dataset presenting class imbalance (require);
 #' @param k  The number of k-nearest neighbours to consider, the default value is 5;
 #' @param oversampling The oversampling ratio to apply. Accepted values must be greater than 0 and multiples of 10. If unspecified, the defaults is the maximum possible ratio for the given dataset;
 #' @param outlier A boolean argument indicating whether the SMOCH-GP function should be adapted to account for potential outliers. The default value is FALSE;
 #' @param out_amp  allows the user to customise the threshold from which an observation is considered an outlier. This parameter is only active when outlier = TRUE, otherwise, it is ignored. By default, an observation is considered an outlier if it lies below or above the first or third quartile by more than 1.5*Interquartile Range.
 #'
-#' @return The function returns a list with three objects:
-#'
-#' \item{Newdata} - A resulting dataset consists of original minority observations, synthetic minority observations and original majority observations. A vector of their respective target classes is included in the final column.
+#' @return
+#' \bold{Newdata} - A resulting dataset consists of original minority observations, synthetic minority observations and original majority observations. A vector of their respective target classes is included in the final column.
 #' @export
 #'
 #' @references  Alonso, H., & da Costa, J. F. P. (2025). Over-sampling methods for mixed data in imbalanced problems. \emph{Communications in Statistics: Simulation and Computation}. \url{https://doi.org/10.1080/03610918.2024.2447451}
