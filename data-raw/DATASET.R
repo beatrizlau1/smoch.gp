@@ -20,8 +20,8 @@
 
 
 ## code to prepare `DATASET` dataset goes here
-library(readxl)
-data <- read_excel("~/Desktop/TESE_2/BD/BD1/DataOMOP.xlsx")
+
+load("data.RData")
 data$age <- as.integer(data$age)
 data$sex <- as.factor(data$sex)
 data$myocardial_infar <- as.factor(data$myocardial_infar)
