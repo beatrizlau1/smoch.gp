@@ -4,36 +4,33 @@
 \alias{smoch.gp}
 \title{Synthetic Minority Ovsersampling Convex Hull - Gower's distance with Podani modification}
 \usage{
-smoch.gp(y, x, data, k = 5, oversampling = 100, outlier = FALSE, out_amp = 1.5)
+smoch.gp(y, data, k = 5, oversampling, outlier = FALSE, out_amp = 1.5)
 }
 \arguments{
-\item{y}{A categorical variable with the unbalanced probelem.}
+\item{y}{The name or column index of the dependent variable, which contains the imbalanced classes(require);}
 
-\item{x}{The variables to include in the prediction problem.}
+\item{data}{A dataset presenting class imbalance (require);}
 
-\item{data}{A data frame containing the original (unbalanced) data set.}
+\item{k}{The number of k-nearest neighbours to consider, the default value is 5;}
 
-\item{k}{A number indicating the number of nearest neighbours that are used to generate the new examples of the minority class.}
+\item{oversampling}{The oversampling ratio to apply. Accepted values must be greater than 0 and multiples of 10. If unspecified, the defaults is the maximum possible ratio for the given dataset;}
 
-\item{oversampling}{A number that drives the decision of how many extra cases from the minority class are generated.}
+\item{outlier}{A boolean argument indicating whether the SMOCH-GP function should be adapted to account for potential outliers. The default value is FALSE;}
 
-\item{outlier}{Optionally, this parameter allows the method to be adapted for the presence of outliers.}
-
-\item{out_amp}{A parameter to adjust the stringency of outlier detection.}
+\item{out_amp}{allows the user to customise the threshold from which an observation is considered an outlier. This parameter is only active when outlier = TRUE, otherwise, it is ignored. By default, an observation is considered an outlier if it lies below or above the first or third quartile by more than 1.5*Interquartile Range.}
 }
 \value{
 The function returns a list with three objects:
 
-\bold{Distances} - The matrix of distances calculated between observations.
-
-\bold{Nearest neighbors} - The nearest neighbors identified.
-
-\bold{Newdata} - The newly generated balanced dataset.
+\item{Newdata} - A resulting dataset consists of original minority observations, synthetic minority observations and original majority observations. A vector of their respective target classes is included in the final column.
 }
 \description{
-Synthetic Minority Ovsersampling Convex Hull - Gower's distance with Podani modification
+This function generates synthetic observations for the minority class in a given dataset exhibiting class imbalance. It was specifically designed for mixed-type datasets—i.e., those containing heterogeneous variable types—although it is also compatible with more uniform datasets, such as those composed solely of numerical or categorical variables, for example.
 }
 \examples{
 df <- data.frame(y=rep(as.factor(c('Yes', 'No')), times=c(90, 10)), x1=rnorm(100), x2=rnorm(100))
-smoch.gp(y='y', x=c('x1','x2'), data=df, k=5, oversampling = 100, outlier = F)
+smoch.gp(y='y', data=df, k=5, oversampling = 100, outlier = F)
+}
+\references{
+Alonso, H., & da Costa, J. F. P. (2025). Over-sampling methods for mixed data in imbalanced problems. \emph{Communications in Statistics: Simulation and Computation}. \url{https://doi.org/10.1080/03610918.2024.2447451}
 }

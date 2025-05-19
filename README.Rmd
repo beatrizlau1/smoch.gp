@@ -39,7 +39,7 @@ This is a basic example which shows you how to apply to a imbalanced dataset:
 ```{r example}
 library(smoch.gp)
 df <- data.frame(y=rep(as.factor(c('Yes', 'No')), times=c(90, 10)), x1=rnorm(100), x2=rnorm(100))
-smoch.gp(y='y', x=c('x1','x2'), data=df, k=5, oversampling = 100, outlier = F)
+smoch.gp(y = 'y', data = df, k = 5, oversampling = 100, outlier = F)
 ```
 
 
