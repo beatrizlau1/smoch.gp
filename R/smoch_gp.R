@@ -497,10 +497,10 @@ smoch.gp <- function(y,data,k=5, oversampling=NULL, outlier=FALSE, out_amp=1.5){
     all_new_data_df <- do.call(rbind, all_new_data)
   }
   return(list(Newdata = data, Synthetic_obs = all_new_data_df,
-              SMOCH_GP_info = paste0("The present dataset has ", nrow," observation, where ", l," are from the minority class. The problem presented is a ",
-                                     if(problem==2) paste0("binary class problem, with an imbalance ratio of ", round(IR,2), ". ") else "multi-class problem.",
-                                     " K-nearest neighbors value was equal to ",k,
-                                     " and over-sampling percentage used was ",oversampling, "%, which corresponds to ",round(relative,0),
-                                     "% of the maximum over-sampling percentage possible. Lastly the outliers amplitude was ",
+              SMOCH_GP_info = paste0("The present dataset has ", nrow," observation, of which ", l," belong to the minority class. The problem is a ",
+                                     if(problem==2) paste0("binary classification task, with an imbalance ratio of ", round(IR,2), ". ") else "multi-classification task.",
+                                     " The value of k used for the K-nearest neighbours was ",k,
+                                     " and the over-sampling percentage applied was ",oversampling, "%, corresponding to ",round(relative,0),
+                                     "% of the maximum over-sampling percentage possible. Lastly outlier amplitude was ",
                                      if(outlier) out_amp else "not used.")))
 }
