@@ -4,7 +4,7 @@
 \alias{smoch.gp}
 \title{Synthetic Minority Ovsersampling Convex Hull - Gower's distance with Podani modification}
 \usage{
-smoch.gp(y, data, k = 5, oversampling, outlier = FALSE, out_amp = 1.5)
+smoch.gp(y, data, k = 5, oversampling = NULL, outlier = FALSE, out_amp = 1.5)
 }
 \arguments{
 \item{y}{The name or column index of the dependent variable, which contains the imbalanced classes (require);}

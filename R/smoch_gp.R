@@ -23,7 +23,7 @@
 #' df <- data.frame(y=rep(as.factor(c('Yes', 'No')), times=c(90, 10)), x1=rnorm(100), x2=rnorm(100))
 #' smoch.gp(y='y', data=df, k=5, oversampling = 100, outlier = F)
 
-smoch.gp <- function(y,data,k=5, oversampling, outlier=FALSE, out_amp=1.5){
+smoch.gp <- function(y,data,k=5, oversampling=NULL, outlier=FALSE, out_amp=1.5){
 
   ## Fazer verificações
   if(missing(data) || !is.data.frame(data)) {
@@ -57,6 +57,8 @@ smoch.gp <- function(y,data,k=5, oversampling, outlier=FALSE, out_amp=1.5){
     stop("K-nearest neighbours must be a positive integer.")
   }
 
+
+
   #descobrir classe minoritária
 
   data <- as.data.frame(data)
@@ -71,8 +73,26 @@ smoch.gp <- function(y,data,k=5, oversampling, outlier=FALSE, out_amp=1.5){
 
   row.names(data) = 1:nrow(data)
 
+  nrow = nrow(data)
+  problem = length(table(data[[y]]))
   min = names(which.min(table(data[[y]])))
+  table = table(data$y)
+  n.min = min(table)
+  n.max = max(table)
+  l=length(data[data$y==min,y])
+  IR = n.max/n.min
 
+  p = ((n.max/n.min)-1)*100
+  p = floor(p/100)*100
+
+  relative=(oversampling/p)*100
+
+  if(k>= l){
+    stop("K-nearest neighbours must be less than the total number of observation of the minority class")
+  }
+
+  ### termina aqui as verificações
+  #### Começa aqui a função
   # Ver o valor do oversampling
   if(oversampling < 100 ){
 
@@ -80,6 +100,11 @@ smoch.gp <- function(y,data,k=5, oversampling, outlier=FALSE, out_amp=1.5){
 
     n_over = oversampling/100*nrow(data[data[[y]]==min,])
 
+    #última verificação
+    if(k>= n_over){
+      stop("K-nearest neighbours must be less than the total number of observation of the minority class")
+    }
+    ####
     original_indices <- which(data[[y]] == min)
     sampled_indices <- sample(original_indices, n_over)
     datax <- data[sampled_indices, , drop = FALSE] #base para construir
@@ -211,6 +236,7 @@ smoch.gp <- function(y,data,k=5, oversampling, outlier=FALSE, out_amp=1.5){
 
     }
 
+    all_new_data <- list()
     for(it in 1:1){
 
       new_data <- list()
@@ -255,6 +281,7 @@ smoch.gp <- function(y,data,k=5, oversampling, outlier=FALSE, out_amp=1.5){
 
       # Converte lista em data.frame
       new_data_df <- do.call(rbind, new_data)
+      all_new_data[[it]] <- new_data_df
 
       # Junta à base de dados original
       data <- rbind(data, new_data_df)
@@ -270,7 +297,7 @@ smoch.gp <- function(y,data,k=5, oversampling, outlier=FALSE, out_amp=1.5){
       })
 
     } # fim do ciclo for
-
+    all_new_data_df <- do.call(rbind, all_new_data)
   } else {  # Quando o oversampling é maior do que 100
 
     # Não precisamos de colocar nenhuma restrição porque vamos usar todas as observações
@@ -404,7 +431,7 @@ smoch.gp <- function(y,data,k=5, oversampling, outlier=FALSE, out_amp=1.5){
     }
 
     #Podemos querer repetir o ciclo várias vezes
-
+    all_new_data <- list()
     for(it in 1:(oversampling/100)){
 
       new_data <- list()
@@ -449,6 +476,7 @@ smoch.gp <- function(y,data,k=5, oversampling, outlier=FALSE, out_amp=1.5){
       }
       # Converte lista em data.frame
       new_data_df <- do.call(rbind, new_data)
+      all_new_data[[it]] <- new_data_df
 
       # Junta à base de dados original
       data <- rbind(data, new_data_df)
@@ -464,8 +492,13 @@ smoch.gp <- function(y,data,k=5, oversampling, outlier=FALSE, out_amp=1.5){
       })
 
     }
+    all_new_data_df <- do.call(rbind, all_new_data)
   }
-
-  return(list(Newdata = data))
+  return(list(Newdata = data, Synthetic_obs = all_new_data_df,
+              SMOCH_GP_info = paste0("The present dataset has ", nrow," observation, where ", l," are from the minority class. The problem presented is a ",
+                                     if(problem==2) paste0("binary class problem, with an imbalance ratio of ", round(IR,2), ". ") else "multi-class problem.",
+                                     " K-nearest neighbors value was equal to ",k,
+                                     " and over-sampling percentage used was ",oversampling, "%, which corresponds to ",round(relative,0),
+                                     "% of the maximum over-sampling percentage possible. Lastly the outliers amplitude was ",
+                                     if(outlier) out_amp else "not used.")))
 }
-
