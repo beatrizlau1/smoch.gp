@@ -16,12 +16,12 @@ knitr::opts_chunk$set(
 # smoch.gp
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
-Class imbalance is a common issue in medical datasets and compromises the performance of predictive models. Currently, over a hundred methods have been proposed to address this limitation, with the Synthetic Minority Over-sampling Technique  and Synthetic Minority Over-sampling Technique for Nominal and Continuous variables (SMOTE-NC)  being the most widely implemented over-sampling techniques in the medical domain. However, none of the methods developed to date take into account the heterogeneity of variables typically found in clinical data, which often results in the generation of synthetic observations without biological plausibility. The Synthetic Minority Over-sampling Convex Hull - Gower Podani (SMOCH-GP) method was proposed to address this gap in the literature. 
+Class imbalance is a common issue in medical datasets and compromises the performance of predictive models. Currently, over a hundred methods have been proposed to address this limitation, with the Synthetic Minority Over-sampling Technique and Synthetic Minority Over-sampling Technique for Nominal and Continuous variables (SMOTE-NC) being the most widely implemented over-sampling techniques in the medical domain. However, none of the methods developed to date take into account the heterogeneity of variables typically found in clinical data, which often results in the generation of synthetic observations without biological plausibility. The Synthetic Minority Over-sampling Convex Hull - Gower Podani (SMOCH-GP) method was proposed to address this gap in the literature.
 
 By employing the Gower distance with the Podani modification, the method ensures that the distances between observations are more reliable and reflective of real-world similarities. This approach also guarantees that the generation of new observations respects the nature of each variable type. For instance, if a variable is quantitative discrete, the resulting synthetic observations will also be integers rather than continuous values—a common issue observed in other over-sampling methods.
-
 
 ## Installation
 
@@ -34,12 +34,32 @@ pak::pak("beatrizlau1/smoch.gp")
 
 ## Example
 
-This is a basic example which shows you how to apply to a imbalanced dataset: 
+This is a basic example which shows you how to apply to a imbalanced dataset:
 
 ```{r example}
 library(smoch.gp)
 df <- data.frame(y=rep(as.factor(c('Yes', 'No')), times=c(90, 10)), x1=rnorm(100), x2=rnorm(100))
-smoch.gp(y = 'y', data = df, k = 5, oversampling = 100, outlier = F)
+smoch = smoch.gp(y = 'y', data = df, k = 5, oversampling = 100, outlier = F)
 ```
 
+## Output
 
+This function gives:
+
+-   A new dataframe with both the original and synthetic observations is returned, allowing the user to easily review and work with it:
+
+    ```{r}
+    smoch$Newdata
+    ```
+
+-   A new data frame containing only the synthetic observations generated, making it easier to assess and study them:
+
+    ```{r}
+    smoch$Synthetic_obs
+    ```
+
+-   Lastly, the function also presents information about the class imbalance problem in the dataset, along with the user-defined input parameters, making it easier and more transparent to share details of the procedure with peers:
+
+    ```{r}
+    smoch$SMOCH_GP_info
+    ```
