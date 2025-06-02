@@ -7,9 +7,9 @@
 smoch.gp(y, data, k = 5, oversampling = NULL, outlier = FALSE, out_amp = 1.5)
 }
 \arguments{
-\item{y}{The name or column index of the dependent variable, which contains the imbalanced classes (require);}
+\item{y}{The name or column index of the dependent variable, which contains the imbalanced classes (required);}
 
-\item{data}{A dataset presenting class imbalance (require);}
+\item{data}{A dataframe presenting class imbalance (required);}
 
 \item{k}{The number of k-nearest neighbours to consider, the default value is 5;}
 
@@ -21,6 +21,8 @@ smoch.gp(y, data, k = 5, oversampling = NULL, outlier = FALSE, out_amp = 1.5)
 }
 \value{
 \bold{Newdata} - A resulting dataset consists of original minority observations, synthetic minority observations and original majority observations. A vector of their respective target classes is included in the final column.
+\bold{Synthetic_obs} - A dataset containing only the new synthetic observations generated.
+\bold{SMOCH_GP_info} - Provides information about the user-specified input parameters, including the number of K-nearest neighbours considered, the over-sampling percentage, and the out_amp value, if used. It also summarises the class imbalance problem present in the dataset, reporting the total number of observations from the minority class and the corresponding imbalance ratio.
 }
 \description{
 This function generates synthetic observations for the minority class in a given dataset exhibiting class imbalance. It was specifically designed for mixed-type datasets—i.e., those containing heterogeneous variable types—although it is also compatible with more uniform datasets, such as those composed solely of numerical or categorical variables, for example.

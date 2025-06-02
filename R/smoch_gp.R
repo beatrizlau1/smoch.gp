@@ -4,8 +4,8 @@
 #' This function generates synthetic observations for the minority class in a given dataset exhibiting class imbalance. It was specifically designed for mixed-type datasets—i.e., those containing heterogeneous variable types—although it is also compatible with more uniform datasets, such as those composed solely of numerical or categorical variables, for example.
 #'
 #'
-#' @param y The name or column index of the dependent variable, which contains the imbalanced classes (require);
-#' @param data  A dataset presenting class imbalance (require);
+#' @param y The name or column index of the dependent variable, which contains the imbalanced classes (required);
+#' @param data  A dataframe presenting class imbalance (required);
 #' @param k  The number of k-nearest neighbours to consider, the default value is 5;
 #' @param oversampling The oversampling ratio to apply. Accepted values must be greater than 0 and multiples of 10. If unspecified, the defaults is the maximum possible ratio for the given dataset;
 #' @param outlier A boolean argument indicating whether the SMOCH-GP function should be adapted to account for potential outliers. The default value is FALSE;
