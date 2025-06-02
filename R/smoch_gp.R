@@ -13,6 +13,8 @@
 #'
 #' @return
 #' \bold{Newdata} - A resulting dataset consists of original minority observations, synthetic minority observations and original majority observations. A vector of their respective target classes is included in the final column.
+#' \bold{Synthetic_obs} - A dataset containing only the new synthetic observations generated.
+#' \bold{SMOCH_GP_info} - Provides information about the user-specified input parameters, including the number of K-nearest neighbours considered, the over-sampling percentage, and the out_amp value, if used. It also summarises the class imbalance problem present in the dataset, reporting the total number of observations from the minority class and the corresponding imbalance ratio.
 #' @export
 #'
 #' @references  Alonso, H., & da Costa, J. F. P. (2025). Over-sampling methods for mixed data in imbalanced problems. \emph{Communications in Statistics: Simulation and Computation}. \url{https://doi.org/10.1080/03610918.2024.2447451}
