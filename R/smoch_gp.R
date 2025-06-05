@@ -23,7 +23,6 @@
 #' @examples
 #' df <- data.frame(y=rep(as.factor(c('Yes', 'No')), times=c(90, 10)), x1=rnorm(100), x2=rnorm(100))
 #' smoch.gp(y='y', data=df, k=5, oversampling = 100, outlier = F)
-#' @importFrom stats IQR quantile runif
 
 smoch.gp <- function(y,data,k=5, oversampling=NULL, outlier=FALSE, out_amp=1.5){
 
@@ -87,7 +86,7 @@ smoch.gp <- function(y,data,k=5, oversampling=NULL, outlier=FALSE, out_amp=1.5){
   relative=(oversampling/p)*100
 
   if(k>= l){
-    stop("K-nearest neighbours must be less than the total number of observation of the minority class")
+    stop("K-nearest neighbours must be less than the total number of observation of the minority class 1")
   }
 
   ### termina aqui as verificações
@@ -101,7 +100,7 @@ smoch.gp <- function(y,data,k=5, oversampling=NULL, outlier=FALSE, out_amp=1.5){
 
     #última verificação
     if(k>= n_over){
-      stop("K-nearest neighbours must be less than the total number of observation of the minority class")
+      stop("K-nearest neighbours must be less than the total number of observation of the minority class 2")
     }
     ####
     original_indices <- which(data[[y]] == min)
