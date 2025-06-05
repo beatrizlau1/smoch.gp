@@ -17,11 +17,13 @@ smoch.gp(y, data, k = 5, oversampling = NULL, outlier = FALSE, out_amp = 1.5)
 
 \item{outlier}{A boolean argument indicating whether the SMOCH-GP function should be adapted to account for potential outliers. The default value is FALSE;}
 
-\item{out_amp}{allows the user to customise the threshold from which an observation is considered an outlier. This parameter is only active when outlier = TRUE, otherwise, it is ignored. By default, an observation is considered an outlier if it lies below or above the first or third quartile by more than 1.5*Interquartile Range.}
+\item{out_amp}{Allows the user to customise the threshold from which an observation is considered an outlier. This parameter is only active when outlier = TRUE, otherwise, it is ignored. By default, an observation is considered an outlier if it lies below or above the first or third quartile by more than out_amp*Interquartile Range (default value out_amp=1.5).}
 }
 \value{
 \bold{Newdata} - A resulting dataset consists of original minority observations, synthetic minority observations and original majority observations. A vector of their respective target classes is included in the final column.
+
 \bold{Synthetic_obs} - A dataset containing only the new synthetic observations generated.
+
 \bold{SMOCH_GP_info} - Provides information about the user-specified input parameters, including the number of K-nearest neighbours considered, the over-sampling percentage, and the out_amp value, if used. It also summarises the class imbalance problem present in the dataset, reporting the total number of observations from the minority class and the corresponding imbalance ratio.
 }
 \description{

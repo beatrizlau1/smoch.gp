@@ -9,12 +9,11 @@
 #' @param k  The number of k-nearest neighbours to consider, the default value is 5;
 #' @param oversampling The oversampling ratio to apply. Accepted values must be greater than 0 and multiples of 10. If unspecified, the defaults is the maximum possible ratio for the given dataset;
 #' @param outlier A boolean argument indicating whether the SMOCH-GP function should be adapted to account for potential outliers. The default value is FALSE;
-#' @param out_amp  allows the user to customise the threshold from which an observation is considered an outlier. This parameter is only active when outlier = TRUE, otherwise, it is ignored. By default, an observation is considered an outlier if it lies below or above the first or third quartile by more than 1.5*Interquartile Range.
+#' @param out_amp  Allows the user to customise the threshold from which an observation is considered an outlier. This parameter is only active when outlier = TRUE, otherwise, it is ignored. By default, an observation is considered an outlier if it lies below or above the first or third quartile by more than out_amp*Interquartile Range (default value out_amp=1.5).
 #'
-#' @return
-#' \bold{Newdata} - A resulting dataset consists of original minority observations, synthetic minority observations and original majority observations. A vector of their respective target classes is included in the final column.
-#' \bold{Synthetic_obs} - A dataset containing only the new synthetic observations generated.
-#' \bold{SMOCH_GP_info} - Provides information about the user-specified input parameters, including the number of K-nearest neighbours considered, the over-sampling percentage, and the out_amp value, if used. It also summarises the class imbalance problem present in the dataset, reporting the total number of observations from the minority class and the corresponding imbalance ratio.
+#' @return \bold{Newdata} - A resulting dataset consists of original minority observations, synthetic minority observations and original majority observations. A vector of their respective target classes is included in the final column.
+#' @return \bold{Synthetic_obs} - A dataset containing only the new synthetic observations generated.
+#' @return \bold{SMOCH_GP_info} - Provides information about the user-specified input parameters, including the number of K-nearest neighbours considered, the over-sampling percentage, and the out_amp value, if used. It also summarises the class imbalance problem present in the dataset, reporting the total number of observations from the minority class and the corresponding imbalance ratio.
 #' @export
 #'
 #' @references  Alonso, H., & da Costa, J. F. P. (2025). Over-sampling methods for mixed data in imbalanced problems. \emph{Communications in Statistics: Simulation and Computation}. \url{https://doi.org/10.1080/03610918.2024.2447451}
@@ -24,6 +23,7 @@
 #' @examples
 #' df <- data.frame(y=rep(as.factor(c('Yes', 'No')), times=c(90, 10)), x1=rnorm(100), x2=rnorm(100))
 #' smoch.gp(y='y', data=df, k=5, oversampling = 100, outlier = F)
+#' @importFrom stats IQR quantile runif
 
 smoch.gp <- function(y,data,k=5, oversampling=NULL, outlier=FALSE, out_amp=1.5){
 
@@ -38,7 +38,7 @@ smoch.gp <- function(y,data,k=5, oversampling=NULL, outlier=FALSE, out_amp=1.5){
 
   # para que o over-sampling seja o máximo
   if(is.null(oversampling)) {
-    table = table(data$y)
+    table = table(data[[y]])
     n.min = min(table)
     n.max = max(table)
     p = ((n.max/n.min)-1)*100
@@ -78,10 +78,7 @@ smoch.gp <- function(y,data,k=5, oversampling=NULL, outlier=FALSE, out_amp=1.5){
   nrow = nrow(data)
   problem = length(table(data[[y]]))
   min = names(which.min(table(data[[y]])))
-  table = table(data$y)
-  n.min = min(table)
-  n.max = max(table)
-  l=length(data[data$y==min,y])
+  l=nrow(data[data[[y]]==min,])
   IR = n.max/n.min
 
   p = ((n.max/n.min)-1)*100
